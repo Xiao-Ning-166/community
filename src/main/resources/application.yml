@@ -1,5 +1,21 @@
 
+
 spring:
+  # 邮件相关配置
+  mail:
+    # stmp 地址
+    host: smtp.qq.com
+    # 端口号，默认都是 465
+    port: 465
+    username: 209026725@qq.com
+    password: hidkdgphjakrcajh
+    # 使用协议
+    protocol: smtps
+    properties:
+      mail:
+        smtp:
+          ssl:
+            enabled: true
   # 开发阶段需要关闭 thymeleaf 的缓存
   thymeleaf:
     cache: false
@@ -18,6 +34,11 @@ spring:
       minimum-pool-size: 5
       # 超时等待时间
       idle-timeout: 30000
+  # 设置文件上传属性
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 100MB
 
 # mybatis \u76F8\u5173\u914D\u7F6E
 #mybatis:
@@ -31,3 +52,10 @@ spring:
 logging:
   level:
     edu.hue.community.dao: debug
+
+community:
+  path:
+    # 上传文件存放位置
+    upload: F:/项目/牛客社区/data/upload
+    # 域名
+    domain: http://localhost:8080
