@@ -18,4 +18,11 @@ public interface DiscussPostService extends IService<DiscussPost> {
      * @return
      */
     Page pageQuery(Page page, Integer userId);
+
+    /**
+     * 保存帖子
+     * @param discussPost 帖子的信息
+     * @return
+     */
+    boolean insertDiscussPost(DiscussPost discussPost);
 }
