@@ -12,4 +12,11 @@ public interface CommentService extends IService<Comment> {
 
     Page<Comment> queryForPage(Page page, Integer entityType, Integer entityId);
 
+    /**
+     * 添加评论
+     * @param comment 评论信息
+     * @return
+     */
+    void insertComment(Comment comment);
+
 }
