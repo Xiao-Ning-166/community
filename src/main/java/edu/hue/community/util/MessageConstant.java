@@ -32,4 +32,13 @@ public class MessageConstant {
      */
     public static final Integer REMEMBER_ME_TIMEOUT = 30 * 24 * 60 * 60;
 
+    /**
+     * 实体的类型：帖子
+     */
+    public static final Integer ENTITY_TYPE_POST = 1;
+
+    /**
+     * 实体的类型：评论
+     */
+    public static final Integer ENTITY_TYPE_COMMENT = 2;
 }
