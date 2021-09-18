@@ -5,10 +5,14 @@ import edu.hue.community.annotation.LoginRequired;
 import edu.hue.community.entity.DiscussPost;
 import edu.hue.community.entity.User;
 import edu.hue.community.service.DiscussPostService;
+import edu.hue.community.service.UserService;
 import edu.hue.community.util.HostHolder;
 import edu.hue.community.util.JSONUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -21,6 +25,9 @@ import java.util.Date;
  */
 @Controller
 public class DiscussPostController {
+
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private DiscussPostService discussPostService;
@@ -57,6 +64,26 @@ public class DiscussPostController {
         discussPostService.insertDiscussPost(discussPost);
         // 如果保存成功
         return JSONUtils.getJSONString(200,"帖子发布成功！！！");
+    }
+
+    @GetMapping("/getDiscussPost/{discussPostId}")
+    public String getDiscussPost(Model model,
+                                 @PathVariable("discussPostId") Integer discussPostId) {
+        if (discussPostId == null) {
+            return "/index";
+        }
+        DiscussPost discussPost = discussPostService.getById(discussPostId
+        );
+        // 空值判断
+        if (discussPost == null) {
+            return "/index";
+        }
+        model.addAttribute("post",discussPost);
+        model.addAttribute("user",userService.getById(discussPost.getUserId()));
+
+        // 帖子回复信息显示功能，稍后再写
+
+        return "/site/discuss-detail";
     }
 
 }
