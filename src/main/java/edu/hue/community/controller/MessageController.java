@@ -164,4 +164,15 @@ public class MessageController {
 
         return JSONUtils.getJSONString(200,"私信已发送！！！");
     }
+
+    @GetMapping("/deleteLetter/{letterId}")
+    @ResponseBody
+    public String deleteLetter(@PathVariable("letterId") Integer letterId) {
+        if (letterId != null) {
+            UpdateWrapper<Message> update = new UpdateWrapper<>();
+            update.set("status",2).eq("id",letterId);
+            messageService.update(update);
+        }
+        return JSONUtils.getJSONString(200);
+    }
 }

@@ -134,4 +134,5 @@ public class DiscussPostController {
         return "/site/discuss-detail";
     }
 
+
 }
