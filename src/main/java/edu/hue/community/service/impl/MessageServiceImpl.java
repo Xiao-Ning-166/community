@@ -7,8 +7,10 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import edu.hue.community.dao.MessageMapper;
 import edu.hue.community.entity.Message;
 import edu.hue.community.service.MessageService;
+import edu.hue.community.util.SensitiveFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.util.HtmlUtils;
 
 /**
  * @author 47552
@@ -19,6 +21,9 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
 
     @Autowired
     private MessageMapper messageMapper;
+
+    @Autowired
+    private SensitiveFilter sensitiveFilter;
 
     /**
      * 查询用户的所有会话和每个会话对应的最新的消息
@@ -60,5 +65,19 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
              .eq("to_id",userId).eq(conversationId!=null,"conversation_id",conversationId);
         Integer count = messageMapper.selectCount(query);
         return count;
+    }
+
+    /**
+     * 保存私信信息
+     * @param message
+     * @return
+     */
+    @Override
+    public Integer insertMessage(Message message) {
+        // 过滤html标签
+        message.setContent(HtmlUtils.htmlEscape(message.getContent()));
+        // 过滤敏感词
+        message.setContent(sensitiveFilter.filter(message.getContent()));
+        return messageMapper.insert(message);
     }
 }

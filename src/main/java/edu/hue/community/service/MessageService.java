@@ -35,4 +35,11 @@ public interface MessageService extends IService<Message> {
      */
     Integer getLetterUnreadCount(Integer userId, String conversationId);
 
+    /**
+     * 保存私信信息
+     * @param message
+     * @return
+     */
+    Integer insertMessage(Message message);
+
 }
