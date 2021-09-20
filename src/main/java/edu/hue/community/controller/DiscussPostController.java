@@ -8,6 +8,7 @@ import edu.hue.community.entity.DiscussPost;
 import edu.hue.community.entity.User;
 import edu.hue.community.service.CommentService;
 import edu.hue.community.service.DiscussPostService;
+import edu.hue.community.service.LikeService;
 import edu.hue.community.service.UserService;
 import edu.hue.community.util.HostHolder;
 import edu.hue.community.util.JSONUtils;
@@ -38,6 +39,9 @@ public class DiscussPostController {
 
     @Autowired
     private HostHolder hostHolder;
+
+    @Autowired
+    private LikeService likeService;
 
     /**
      * 发布一个帖子
@@ -77,14 +81,20 @@ public class DiscussPostController {
         if (discussPostId == null) {
             return "/index";
         }
-        DiscussPost discussPost = discussPostService.getById(discussPostId
-        );
+        DiscussPost discussPost = discussPostService.getById(discussPostId);
         // 空值判断
         if (discussPost == null) {
             return "/index";
         }
+        User user = userService.getById(discussPost.getUserId());
+        // 查询帖子的评论数量
+        Long likeCount = likeService.getLikeCount(1, discussPostId);
+        model.addAttribute("likeCount",likeCount);
+        // 当前用户是否为该帖子点赞
+        Integer likeStatus = likeService.getLikeStatus(user.getId(), MessageConstant.ENTITY_TYPE_POST, discussPostId);
+        model.addAttribute("likeStatus",likeStatus);
         model.addAttribute("post",discussPost);
-        model.addAttribute("user",userService.getById(discussPost.getUserId()));
+        model.addAttribute("user",user);
 
         // 帖子回复信息显示功能，稍后再写
         Page<Comment> page = new Page<>(current,5);
@@ -102,6 +112,12 @@ public class DiscussPostController {
                 map.put("comment", record);
                 // 评论人
                 map.put("user",userService.getById(record.getUserId()));
+                // 查询评论的点赞数量
+                likeCount = likeService.getLikeCount(2, record.getId());
+                map.put("commentLikeCount",likeCount);
+                // 查看当前用户是否为该评论点赞
+                likeStatus = likeService.getLikeStatus(user.getId(), MessageConstant.ENTITY_TYPE_COMMENT,record.getId());
+                map.put("commentLikeStatus",likeStatus);
                 // 查询评论的评论
                 Page<Comment> page02 = new Page<>(0, Integer.MAX_VALUE);
                 Page<Comment> pageForComment = commentService.queryForPage(page02,
@@ -117,7 +133,12 @@ public class DiscussPostController {
                         // 回复目标
                         User target = reply.getTargetId() == 0?null:userService.getById(reply.getTargetId());
                         replyMap.put("target", target);
-
+                        // 查询回复的评论数量
+                        likeCount = likeService.getLikeCount(2, reply.getId());
+                        replyMap.put("replyLikeCount",likeCount);
+                        // 查看当前用户是否为该评论点赞
+                        likeStatus = likeService.getLikeStatus(user.getId(), MessageConstant.ENTITY_TYPE_COMMENT,record.getId());
+                        replyMap.put("replyLikeStatus",likeStatus);
                         replyVoList.add(replyMap);
                     }
                 }
@@ -129,6 +150,7 @@ public class DiscussPostController {
                 commentList.add(map);
             }
         }
+
         model.addAttribute("comments",commentList);
         model.addAttribute("page",commentPage);
         return "/site/discuss-detail";

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import edu.hue.community.entity.DiscussPost;
 import edu.hue.community.entity.User;
 import edu.hue.community.service.DiscussPostService;
+import edu.hue.community.service.LikeService;
 import edu.hue.community.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -29,6 +30,9 @@ public class HomeController {
     @Autowired
     private DiscussPostService discussPostService;
 
+    @Autowired
+    private LikeService likeService;
+
     /**
      * 分页查询
      * @param model
@@ -48,10 +52,12 @@ public class HomeController {
                 map.put("post", record);
                 User user = userService.getById(record.getUserId());
                 map.put("user", user);
+                // 查询帖子赞的数量
+                Long likeCount = likeService.getLikeCount(1, record.getId());
+                map.put("likeCount", likeCount);
                 list.add(map);
             }
         }
-
         model.addAttribute("discussPosts",list);
         model.addAttribute("page",page);
         return "/index";
