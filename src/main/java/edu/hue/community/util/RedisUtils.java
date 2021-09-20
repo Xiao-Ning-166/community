@@ -14,7 +14,8 @@ public class RedisUtils {
     /**
      * 点赞键的主键
      */
-    private static final String PREFIX_LIKE = "like:entity";
+    private static final String PREFIX_ENTITY_LIKE = "like:entity";
+    private static final String PREFIX_USER_LIKE = "like:user";
 
     /**
      * 生成一个存放点赞次数的键
@@ -23,8 +24,18 @@ public class RedisUtils {
      * @return
      */
     public static String getRedisKey(int entityType, int entityId) {
-        String likeKey = PREFIX_LIKE + SPLIT + entityType + SPLIT + entityId;
+        String likeKey = PREFIX_ENTITY_LIKE + SPLIT + entityType + SPLIT + entityId;
         return likeKey;
+    }
+
+    /**
+     * 生成一个存放用户收到赞的数量的键
+     * @param userId
+     * @return
+     */
+    public static String getUserKey(Integer userId) {
+        String userLikeKey = PREFIX_USER_LIKE + SPLIT + userId;
+        return userLikeKey;
     }
 
 }

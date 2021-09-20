@@ -3,6 +3,7 @@ package edu.hue.community.controller;
 import cn.hutool.core.util.StrUtil;
 import edu.hue.community.annotation.LoginRequired;
 import edu.hue.community.entity.User;
+import edu.hue.community.service.LikeService;
 import edu.hue.community.service.UserService;
 import edu.hue.community.util.HostHolder;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +43,9 @@ public class UserController {
 
     @Autowired
     private HostHolder hostHolder;
+
+    @Autowired
+    private LikeService likeService;
 
     /**
      * 去往账号设置页面
@@ -148,5 +152,21 @@ public class UserController {
         userService.updateById(user);
 
         return "redirect:/logout";
+    }
+
+    /**
+     * 去往个人主页
+     * @param userId
+     * @param model
+     * @return
+     */
+    @GetMapping("/profile/{userId}")
+    public String profile(@PathVariable("userId") Integer userId, Model model) {
+        User user = userService.getById(userId);
+        // 获取当前用户的被点赞数
+        Integer likeCount = likeService.getLikeCountByUserId(userId);
+        model.addAttribute("user",user);
+        model.addAttribute("likeCount",likeCount);
+        return "/site/profile";
     }
 }

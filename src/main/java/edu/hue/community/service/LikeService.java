@@ -12,9 +12,10 @@ public interface LikeService {
      * @param userId 点赞用户的id
      * @param entityType 被点赞内容的类型（帖子/评论）
      * @param entityId 被点赞内容的id
+     * @param entityUserId 实体作者的id
      * @return
      */
-    void updateLikeCount(Integer userId, Integer entityType, Integer entityId);
+    void updateLikeCount(Integer userId, Integer entityType, Integer entityId, Integer entityUserId);
 
     /**
      * 获取某实体的点赞数量
@@ -33,4 +34,10 @@ public interface LikeService {
      */
     Integer getLikeStatus(Integer userId, Integer entityType, Integer entityId);
 
+    /**
+     * 通过用户id查询该用户获得的赞的数量
+     * @param userId
+     * @return
+     */
+    Integer getLikeCountByUserId(Integer userId);
 }

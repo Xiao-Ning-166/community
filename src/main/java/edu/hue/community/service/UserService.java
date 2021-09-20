@@ -55,4 +55,5 @@ public interface UserService extends IService<User> {
      * @return
      */
     Map<String, Object> resetPassword(String email, String password);
+
 }
