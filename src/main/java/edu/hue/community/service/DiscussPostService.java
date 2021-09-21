@@ -1,6 +1,7 @@
 package edu.hue.community.service;
 
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import edu.hue.community.entity.DiscussPost;
@@ -25,4 +26,12 @@ public interface DiscussPostService extends IService<DiscussPost> {
      * @return
      */
     boolean insertDiscussPost(DiscussPost discussPost);
+
+    /**
+     * 获取某个用户发过的所有帖子
+     * @param page
+     * @param userId
+     * @return
+     */
+    IPage<DiscussPost> listPost(IPage<DiscussPost> page, Integer userId);
 }

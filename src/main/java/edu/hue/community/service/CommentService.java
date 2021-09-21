@@ -1,5 +1,6 @@
 package edu.hue.community.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import edu.hue.community.entity.Comment;
@@ -18,5 +19,13 @@ public interface CommentService extends IService<Comment> {
      * @return
      */
     void insertComment(Comment comment);
+
+    /**
+     * 查询某用户发过的所有帖子
+     * @param page
+     * @param userId
+     * @return
+     */
+    IPage<Comment> listComment(IPage<Comment> page, Integer userId);
 
 }

@@ -1,6 +1,7 @@
 package edu.hue.community.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import edu.hue.community.dao.DiscussPostMapper;
@@ -59,6 +60,21 @@ public class DiscussPostServiceImpl
         discussPost.setContent(sensitiveFilter.filter(discussPost.getContent()));
 
         return this.save(discussPost);
+    }
+
+    /**
+     * 获取某个用户发过的所有帖子
+     * @param page
+     * @param userId
+     * @return
+     */
+    @Override
+    public IPage<DiscussPost> listPost(IPage<DiscussPost> page, Integer userId) {
+        QueryWrapper<DiscussPost> query = new QueryWrapper();
+        query.eq("user_id",userId).ne("status",2)
+             .orderByDesc("create_time", "type");
+        IPage<DiscussPost> discussPostPage = this.page(page, query);
+        return discussPostPage;
     }
 
 

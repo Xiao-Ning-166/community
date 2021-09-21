@@ -1,6 +1,7 @@
 package edu.hue.community.controller;
 
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import edu.hue.community.annotation.LoginRequired;
 import edu.hue.community.entity.Comment;
@@ -156,5 +157,32 @@ public class DiscussPostController {
         return "/site/discuss-detail";
     }
 
+    /**
+     * 展示某用户所有发过的帖子
+     * 该功能需要登录
+     * @param model
+     * @param current
+     * @return
+     */
+    @GetMapping("/myPost/{userId}")
+    public String listPost(Model model,
+                          @RequestParam(value = "current", required = false, defaultValue = "0") Integer current) {
+        IPage<DiscussPost> page = new Page<>(current,10);
+        IPage<DiscussPost> discussPostPage = discussPostService.listPost(page, hostHolder.getUser().getId());
+        List<DiscussPost> postList = discussPostPage.getRecords();
+        List<Map<String, Object>> postVoList = new ArrayList<>();
+        for (DiscussPost discussPost : postList) {
+            Map map = new HashMap();
+            map.put("post",discussPost);
+            Long likeCount = likeService.getLikeCount(MessageConstant.ENTITY_TYPE_POST, discussPost.getId());
+            map.put("likeCount",likeCount);
+            postVoList.add(map);
+        }
+        model.addAttribute("postVoList",postVoList);
+        model.addAttribute("user",hostHolder.getUser());
+        model.addAttribute("postCount",postVoList==null?0:postVoList.size());
+        model.addAttribute("page",discussPostPage);
+        return "/site/my-post";
+    }
 
 }

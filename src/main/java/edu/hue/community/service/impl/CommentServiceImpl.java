@@ -84,5 +84,18 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
         }
     }
 
-
+    /**
+     * 查询某用户发过的所有帖子
+     * @param page
+     * @param userId
+     * @return
+     */
+    @Override
+    public IPage<Comment> listComment(IPage<Comment> page, Integer userId) {
+        QueryWrapper<Comment> query = new QueryWrapper<>();
+        query.eq("user_id",userId).ne("status",2)
+             .orderByDesc("create_time");
+        IPage<Comment> commentPage = this.page(page, query);
+        return commentPage;
+    }
 }
