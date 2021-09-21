@@ -87,7 +87,7 @@ public class DiscussPostController {
         if (discussPost == null) {
             return "/index";
         }
-        User user = userService.getById(discussPost.getUserId());
+        User user = userService.getUserById(discussPost.getUserId());
         // 查询帖子的评论数量
         Long likeCount = likeService.getLikeCount(1, discussPostId);
         model.addAttribute("likeCount",likeCount);
@@ -112,7 +112,7 @@ public class DiscussPostController {
                 // 评论的信息
                 map.put("comment", record);
                 // 评论人
-                map.put("user",userService.getById(record.getUserId()));
+                map.put("user",userService.getUserById(record.getUserId()));
                 // 查询评论的点赞数量
                 likeCount = likeService.getLikeCount(2, record.getId());
                 map.put("commentLikeCount",likeCount);
@@ -130,9 +130,9 @@ public class DiscussPostController {
                     for (Comment reply : replyList) {
                         Map<String, Object> replyMap = new HashMap<>();
                         replyMap.put("reply", reply);
-                        replyMap.put("user", userService.getById(reply.getUserId()));
+                        replyMap.put("user", userService.getUserById(reply.getUserId()));
                         // 回复目标
-                        User target = reply.getTargetId() == 0?null:userService.getById(reply.getTargetId());
+                        User target = reply.getTargetId() == 0?null:userService.getUserById(reply.getTargetId());
                         replyMap.put("target", target);
                         // 查询回复的评论数量
                         likeCount = likeService.getLikeCount(2, reply.getId());

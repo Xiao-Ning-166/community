@@ -17,9 +17,7 @@ import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
-import javax.websocket.server.PathParam;
 import java.io.*;
 
 /**
@@ -93,7 +91,12 @@ public class UserController {
         String headerUrl = domain + "/header/" + filename;
         // 更新用户头像
         user.setHeaderUrl(headerUrl);
-        userService.updateById(user);
+        boolean flag = userService.updateById(user);
+
+        if (flag) {
+            // 清理缓存中的用户数据
+            userService.clearCache(user.getId());
+        }
 
         return "redirect:/setting";
     }
@@ -151,7 +154,11 @@ public class UserController {
         }
         // 更新密码
         user.setPassword(DigestUtils.md5DigestAsHex((newPassword + user.getSalt()).getBytes()));
-        userService.updateById(user);
+        boolean flag = userService.updateById(user);
+        if (flag) {
+            // 清理缓存中该用户的数据
+            userService.clearCache(user.getId());
+        }
 
         return "redirect:/logout";
     }
@@ -164,7 +171,7 @@ public class UserController {
      */
     @GetMapping("/profile/{userId}")
     public String profile(@PathVariable("userId") Integer userId, Model model) {
-        User user = userService.getById(userId);
+        User user = userService.getUserById(userId);
         // 获取当前用户的被点赞数
         Integer likeCount = likeService.getLikeCountByUserId(userId);
         // 查询用户关注的人的数量

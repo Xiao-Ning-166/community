@@ -12,7 +12,9 @@ import edu.hue.community.entity.User;
 import edu.hue.community.service.UserService;
 import edu.hue.community.util.MailUtils;
 import edu.hue.community.util.MessageConstant;
+import edu.hue.community.util.RedisUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 import org.thymeleaf.TemplateEngine;
@@ -21,6 +23,7 @@ import org.thymeleaf.context.Context;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author xiaoning
@@ -39,9 +42,52 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private MailUtils mailUtils;
 
     @Autowired
-    private LoginTicketMapper loginTicketMapper;
+    private RedisTemplate redisTemplate;
+
+    //@Autowired
+    //private LoginTicketMapper loginTicketMapper;
 
     public static final String DOMAIN_NAME = "http://localhost:8080";
+    @Override
+    public User getUserById(Integer userId) {
+        User user = getUserFromCache(userId);
+        if (user == null) {
+            user = initCache(userId);
+        }
+        return user;
+    }
+
+    /**
+     * 从缓存中查找用户数据
+     * @param userId
+     * @return
+     */
+    private User getUserFromCache(Integer userId) {
+        String cacheUserKey = RedisUtils.getCacheUserKey(userId);
+        return (User) redisTemplate.opsForValue().get(cacheUserKey);
+    }
+
+    /**
+     * 初始化缓存中的数据
+     * @param userId
+     * @return
+     */
+    private User initCache(Integer userId) {
+        String cacheUserKey = RedisUtils.getCacheUserKey(userId);
+        User user = userMapper.selectById(userId);
+        redisTemplate.opsForValue().set(cacheUserKey, user, 3600, TimeUnit.SECONDS);
+        return user;
+    }
+
+    /**
+     * 清除缓存中的用户数据
+     * @param userId
+     */
+    @Override
+    public void clearCache(Integer userId) {
+        String cacheUserKey = RedisUtils.getCacheUserKey(userId);
+        redisTemplate.delete(cacheUserKey);
+    }
 
     /**
      * 注册用户
@@ -92,6 +138,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         user.setCreateTime(new Date());
         userMapper.insert(user);
 
+
         // 发送激活邮件
         Context context = new Context();
         context.setVariable("username",user.getUsername());
@@ -118,7 +165,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         } else if (user.getActivationCode().equals(code)){
             // 激活成功
             user.setStatus(1);
-            userMapper.updateById(user);
+            int i = userMapper.updateById(user);
+            if (i > 0) {
+                // 清理缓存中该用户的数据
+                clearCache(user.getId());
+            }
             return MessageConstant.ACTIVATE_SUCCESS;
         } else {
             // 激活失败
@@ -173,7 +224,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // 设置过期时间默认 10 分钟
         loginTicket.setExpired(new Date(System.currentTimeMillis() + timeout * 1000));
 
-        loginTicketMapper.insert(loginTicket);
+        //loginTicketMapper.insert(loginTicket);
+        // 将登录凭证存放到redis中
+        String loginTicketKey = RedisUtils.getLoginTicketKey(loginTicket.getTicket());
+        redisTemplate.opsForValue().set(loginTicketKey, loginTicket);
 
         map.put("ticket", loginTicket.getTicket());
 
@@ -186,12 +240,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      */
     @Override
     public void logout(String ticket) {
-        LoginTicket loginTicket = new LoginTicket();
-        loginTicket.setTicket(ticket);
+        //LoginTicket loginTicket = new LoginTicket();
+        //loginTicket.setTicket(ticket);
+        //loginTicket.setStatus(1);
+        //UpdateWrapper updateWrapper = new UpdateWrapper();
+        //updateWrapper.eq("ticket",ticket);
+        //loginTicketMapper.update(loginTicket,updateWrapper);
+        String loginTicketKey = RedisUtils.getLoginTicketKey(ticket);
+        LoginTicket loginTicket = (LoginTicket) redisTemplate.opsForValue().get(loginTicketKey);
         loginTicket.setStatus(1);
-        UpdateWrapper updateWrapper = new UpdateWrapper();
-        updateWrapper.eq("ticket",ticket);
-        loginTicketMapper.update(loginTicket,updateWrapper);
+        redisTemplate.opsForValue().set(loginTicketKey, loginTicket);
     }
 
     /**

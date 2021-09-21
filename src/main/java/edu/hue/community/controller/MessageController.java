@@ -58,7 +58,7 @@ public class MessageController {
                 map.put("messageCount",letterPage.getTotal());
                 // 得到对方的id
                 Integer targetId = user.getId().equals(conversation.getFromId()) ? conversation.getToId() : conversation.getFromId();
-                User target = userService.getById(targetId);
+                User target = userService.getUserById(targetId);
                 map.put("target", target);
 
                 conversationVoList.add(map);
@@ -95,14 +95,14 @@ public class MessageController {
             for (Message message : letterList) {
                 Map<String, Object> map = new HashMap<>();
                 map.put("letter", message);
-                map.put("fromUser", userService.getById(message.getFromId()));
+                map.put("fromUser", userService.getUserById(message.getFromId()));
 
                 letters.add(map);
             }
         }
         Message letter = letterList.get(0);
         Integer targetId = user.getId().equals(letter.getFromId()) ? letter.getToId() : letter.getFromId();
-        User target = userService.getById(targetId);
+        User target = userService.getUserById(targetId);
         model.addAttribute("letters",letters);
         model.addAttribute("targetUser",target);
         model.addAttribute("page",letterPage);

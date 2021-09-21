@@ -50,7 +50,7 @@ public class HomeController {
             for (DiscussPost record : records) {
                 Map<String, Object> map = new HashMap<>();
                 map.put("post", record);
-                User user = userService.getById(record.getUserId());
+                User user = userService.getUserById(record.getUserId());
                 map.put("user", user);
                 // 查询帖子赞的数量
                 Long likeCount = likeService.getLikeCount(1, record.getId());

@@ -27,6 +27,18 @@ public class RedisUtils {
      * 用户关注的实体的前缀
      */
     private static final String PREFIX_FOLLOWEE = "followee";
+    /**
+     * 登录验证码的前缀
+     */
+    private static final String PREFIX_LOGIN_CODE = "code:login";
+    /**
+     * 登录凭证的前缀
+     */
+    private static final String PREFIX_LOGIN_TICKET = "ticket:login";
+    /**
+     * 缓存用户数据的前缀
+     */
+    private static final String PREFIX_CACHE_USER = "cache:user";
 
     /**
      * 生成一个存放点赞次数的键
@@ -65,5 +77,32 @@ public class RedisUtils {
      */
     public static String getFolloweeKey(Integer userId, Integer entityType) {
         return PREFIX_FOLLOWEE + SPLIT + userId + SPLIT + entityType;
+    }
+
+    /**
+     * 得到存放登录验证码的key
+     * @param owner
+     * @return
+     */
+    public static String getLoginCodeKey(String owner) {
+        return PREFIX_LOGIN_CODE + SPLIT + owner;
+    }
+
+    /**
+     * 得到存放登录凭证的key
+     * @param ticket
+     * @return
+     */
+    public static String getLoginTicketKey(String ticket) {
+        return PREFIX_LOGIN_TICKET + SPLIT + ticket;
+    }
+
+    /**
+     * 得到存放缓存用户数据的key
+     * @param userId
+     * @return
+     */
+    public static String getCacheUserKey(Integer userId) {
+        return PREFIX_CACHE_USER + SPLIT + userId;
     }
 }

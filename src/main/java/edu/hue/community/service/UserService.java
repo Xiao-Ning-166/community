@@ -12,6 +12,19 @@ import java.util.Map;
 public interface UserService extends IService<User> {
 
     /**
+     * 根据id获取用户数据。先从缓存redis中获取
+     * @param userId
+     * @return
+     */
+    User getUserById(Integer userId);
+
+    /**
+     *  清理缓存中的用户数据
+     * @param userId
+     */
+    void clearCache(Integer userId);
+
+    /**
      * 注册用户
      * @param user
      * @return

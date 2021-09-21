@@ -8,8 +8,10 @@ import edu.hue.community.entity.User;
 import edu.hue.community.service.UserService;
 import edu.hue.community.util.MailUtils;
 import edu.hue.community.util.MessageConstant;
+import edu.hue.community.util.RedisUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mail.MailSender;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,6 +28,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author 47552
@@ -42,6 +45,9 @@ public class LoginController {
     private Producer kaptchaProducer;
 
     @Autowired
+    private RedisTemplate redisTemplate;
+
+    @Autowired
     private MailUtils mailUtils;
 
     /**
@@ -54,14 +60,23 @@ public class LoginController {
     }
 
     @GetMapping("/getVerificationCode")
-    public void getVerificationCode(HttpServletResponse response,
-                                    HttpSession session) {
+    public void getVerificationCode(HttpServletResponse response
+                                    /*,HttpSession session*/) {
         // 生成验证码
         String verificationCode = kaptchaProducer.createText();
         BufferedImage image = kaptchaProducer.createImage(verificationCode);
 
         // 将验证码存放在session 域中
-        session.setAttribute("verificationCode", verificationCode);
+        //session.setAttribute("verificationCode", verificationCode);
+        // 凭证
+        String owner = StrUtil.uuid();
+        Cookie cookie = new Cookie("owner", owner);
+        cookie.setMaxAge(60);
+        cookie.setPath("/");
+        response.addCookie(cookie);
+        // 将验证码存放到redis中
+        String loginCodeKey = RedisUtils.getLoginCodeKey(owner);
+        redisTemplate.opsForValue().set(loginCodeKey,verificationCode,60, TimeUnit.SECONDS);
 
         // 将验证码输出给客户端
         response.setContentType("image/png");
@@ -76,7 +91,6 @@ public class LoginController {
     /**
      * 登录
      * @param model
-     * @param session
      * @param response
      * @param username
      * @param password
@@ -85,15 +99,23 @@ public class LoginController {
      * @return
      */
     @PostMapping("/login")
-    public String login(Model model, HttpSession session, HttpServletResponse response,
+    public String login(Model model, /*HttpSession session,*/ HttpServletResponse response,
+                        @CookieValue("owner") String owner,
                         @RequestParam("username") String username,
                         @RequestParam("password") String password,
                         @RequestParam("verificationCode") String verificationCode,
                         @RequestParam(value = "rememberMe", required = false, defaultValue="false") Boolean rememberMe
                         ) {
-        String realVerificationCode1 = (String) session.getAttribute("verificationCode");
+        //String realVerificationCode1 = (String) session.getAttribute("verificationCode");
+        // 从redis中获取登录验证码
+        String realVerificationCode = null;
+        // 判断凭证是否过期
+        if (StrUtil.isNotBlank(owner)) {
+            String loginCodeKey = RedisUtils.getLoginCodeKey(owner);
+            realVerificationCode = (String) redisTemplate.opsForValue().get(loginCodeKey);
+        }
         // 检查验证码是否正确
-        if (!realVerificationCode1.equalsIgnoreCase(verificationCode)) {
+        if (!realVerificationCode.equalsIgnoreCase(verificationCode)) {
             model.addAttribute("verificationCodeMsg","验证码不正确！！！");
             return "/site/login";
         }

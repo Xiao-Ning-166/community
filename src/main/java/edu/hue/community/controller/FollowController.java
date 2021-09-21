@@ -55,7 +55,7 @@ public class FollowController {
     @GetMapping("/listFollowee/{userId}")
     public String listFollowee(@PathVariable("userId") Integer userId, Model model,
                                @RequestParam(value = "offset", required = false, defaultValue = "0") Integer offset) {
-        User user = userService.getById(userId);
+        User user = userService.getUserById(userId);
         model.addAttribute("user", user);
         Long followeeCount = followService.getFolloweeCount(userId, MessageConstant.ENTITY_TYPE_USER);
         model.addAttribute("followeeCount",followeeCount);
@@ -76,7 +76,7 @@ public class FollowController {
     @GetMapping("/listFollower/{userId}")
     public String listFollower(@PathVariable("userId") Integer userId, Model model,
                                @RequestParam(value = "offset", required = false, defaultValue = "0") Integer offset) {
-        User user = userService.getById(userId);
+        User user = userService.getUserById(userId);
         model.addAttribute("user", user);
 
         Long followeeCount = followService.getFollowerCount(MessageConstant.ENTITY_TYPE_USER,userId);

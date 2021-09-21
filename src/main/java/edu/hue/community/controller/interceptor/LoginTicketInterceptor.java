@@ -7,7 +7,9 @@ import edu.hue.community.service.LoginTicketService;
 import edu.hue.community.service.UserService;
 import edu.hue.community.util.CookieUtils;
 import edu.hue.community.util.HostHolder;
+import edu.hue.community.util.RedisUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.AsyncHandlerInterceptor;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -32,6 +34,9 @@ public class LoginTicketInterceptor implements HandlerInterceptor {
     @Autowired
     private HostHolder hostHolder;
 
+    @Autowired
+    private RedisTemplate redisTemplate;
+
     /**
      * 在 Controller 方法执行之前执行
      */
@@ -41,15 +46,17 @@ public class LoginTicketInterceptor implements HandlerInterceptor {
         String ticket = CookieUtils.getCookieValue(request, "ticket");
         if (ticket != null) {
             // 查询凭证
-            QueryWrapper query = new QueryWrapper();
-            query.eq("ticket", ticket);
-            LoginTicket loginTicket = loginTicketService.getOne(query);
+            //QueryWrapper query = new QueryWrapper();
+            //query.eq("ticket", ticket);
+            //LoginTicket loginTicket = loginTicketService.getOne(query);
+            String loginTicketKey = RedisUtils.getLoginTicketKey(ticket);
+            LoginTicket loginTicket = (LoginTicket) redisTemplate.opsForValue().get(loginTicketKey);
             // 检查凭证是否有效
             if (loginTicket != null
                     && loginTicket.getStatus() == 0
                     && loginTicket.getExpired().after(new Date())) {
                 // 根据凭证查询用户
-                User user = userService.getById(loginTicket.getUserId());
+                User user = userService.getUserById(loginTicket.getUserId());
                 //
                 hostHolder.setUser(user);
             }
