@@ -15,7 +15,18 @@ public class RedisUtils {
      * 点赞键的主键
      */
     private static final String PREFIX_ENTITY_LIKE = "like:entity";
+    /**
+     * 用户收到点赞数的前缀
+     */
     private static final String PREFIX_USER_LIKE = "like:user";
+    /**
+     * 实体的粉丝的前缀
+     */
+    private static final String PREFIX_FOLLOWER = "follower";
+    /**
+     * 用户关注的实体的前缀
+     */
+    private static final String PREFIX_FOLLOWEE = "followee";
 
     /**
      * 生成一个存放点赞次数的键
@@ -38,4 +49,21 @@ public class RedisUtils {
         return userLikeKey;
     }
 
+    /**
+     * 得到存放某个实体的粉丝的键
+     * @return
+     */
+    public static String getFollowerKey(Integer entityType, Integer entityId) {
+        return PREFIX_FOLLOWER + SPLIT + entityType + SPLIT + entityId;
+    }
+
+    /**
+     * 得到某用户关注的实体的键
+     * @param userId
+     * @param entityType
+     * @return
+     */
+    public static String getFolloweeKey(Integer userId, Integer entityType) {
+        return PREFIX_FOLLOWEE + SPLIT + userId + SPLIT + entityType;
+    }
 }

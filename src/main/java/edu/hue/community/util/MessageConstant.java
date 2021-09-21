@@ -41,4 +41,9 @@ public class MessageConstant {
      * 实体的类型：评论
      */
     public static final Integer ENTITY_TYPE_COMMENT = 2;
+
+    /**
+     * 实体的类型：用户
+     */
+    public static final Integer ENTITY_TYPE_USER = 3;
 }
