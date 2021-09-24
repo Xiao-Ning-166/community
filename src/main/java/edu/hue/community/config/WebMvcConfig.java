@@ -2,6 +2,7 @@ package edu.hue.community.config;
 
 import edu.hue.community.controller.interceptor.LoginRequiredInterceptor;
 import edu.hue.community.controller.interceptor.LoginTicketInterceptor;
+import edu.hue.community.controller.interceptor.MessageInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -20,6 +21,9 @@ public class WebMvcConfig  implements WebMvcConfigurer {
     @Autowired
     private LoginRequiredInterceptor loginRequiredInterceptor;
 
+    @Autowired
+    private MessageInterceptor messageInterceptor;
+
     /**
      * @param registry
      */
@@ -30,6 +34,9 @@ public class WebMvcConfig  implements WebMvcConfigurer {
                 .excludePathPatterns("/css/**", "/img/**", "/js/**");
         // 添加检查登录状态拦截器
         registry.addInterceptor(loginRequiredInterceptor)
+                .excludePathPatterns("/css/**", "/img/**", "/js/**");
+        // 添加显示未读消息数量的拦截器
+        registry.addInterceptor(messageInterceptor)
                 .excludePathPatterns("/css/**", "/img/**", "/js/**");
     }
 }

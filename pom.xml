@@ -27,6 +27,19 @@
     </properties>
 
     <dependencies>
+        <!-- elasticsearch相关 -->
+<!--        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-elasticsearch</artifactId>
+        </dependency>-->
+
+        <!-- spring 整合kafka相关依赖 -->
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
+        </dependency>
+
+
         <!-- redis相关依赖 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

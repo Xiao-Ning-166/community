@@ -4,9 +4,12 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import edu.hue.community.entity.Comment;
 import edu.hue.community.entity.DiscussPost;
+import edu.hue.community.entity.Event;
+import edu.hue.community.event.EventProducer;
 import edu.hue.community.service.CommentService;
 import edu.hue.community.service.DiscussPostService;
 import edu.hue.community.service.LikeService;
+import edu.hue.community.service.UserService;
 import edu.hue.community.util.HostHolder;
 import edu.hue.community.util.MessageConstant;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +41,10 @@ public class CommentController {
     @Autowired
     private DiscussPostService discussPostService;
 
+    @Autowired
+    private EventProducer eventProducer;
+
+
     /**
      * 添加评论
      * @param discussPostId 被评论的帖子的id
@@ -50,6 +57,24 @@ public class CommentController {
         comment.setUserId(hostHolder.getUser().getId());
         comment.setCreateTime(new Date());
         commentService.insertComment(comment);
+
+        // 添加评论后。触发评论事件。给被评论的用户发送系统通知
+        Event event = new Event();
+        event.setTopic(MessageConstant.TOPIC_COMMENT)
+             .setUserId(hostHolder.getUser().getId())
+             .setEntityType(comment.getEntityType())
+             .setEntityId(comment.getEntityId())
+             .setData("postId", discussPostId);
+        if (comment.getEntityType().equals(MessageConstant.ENTITY_TYPE_POST)) {
+            DiscussPost target = discussPostService.getById(comment.getEntityId());
+            event.setEntityUserId(target.getUserId());
+        } else if (comment.getEntityType().equals(MessageConstant.ENTITY_TYPE_COMMENT)) {
+            Comment target = commentService.getById(comment.getEntityId());
+            event.setEntityUserId(target.getUserId());
+        }
+        // 发送通知
+        eventProducer.fireEvent(event);
+
         // 重定向显示评论详情
         return "redirect:/getDiscussPost/" + discussPostId;
     }

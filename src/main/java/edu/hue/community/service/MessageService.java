@@ -42,4 +42,17 @@ public interface MessageService extends IService<Message> {
      */
     Integer insertMessage(Message message);
 
+    /**
+     * 通过通知类型查询通知
+     * @param topic
+     * @return
+     */
+    IPage<Message> listMessage(IPage<Message> page, Integer userId, String topic);
+
+    /**
+     * 查询未读的通知数量
+     * @return
+     */
+    Integer getNoticeUnreadCount(Integer userId, String topic);
+
 }

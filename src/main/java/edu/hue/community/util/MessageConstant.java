@@ -46,4 +46,21 @@ public class MessageConstant {
      * 实体的类型：用户
      */
     public static final Integer ENTITY_TYPE_USER = 3;
+
+    /**
+     * 主题类型：评论
+     */
+    public static final String TOPIC_COMMENT = "comment";
+    /**
+     * 主题类型：点赞
+     */
+    public static final String TOPIC_LIKE = "like";
+    /**
+     * 点赞
+     */
+    public static final String TOPIC_FOLLOW = "follow";
+    /**
+     * 系统用户的id
+     */
+    public static final Integer SYSTEM_USER_ID = 1;
 }

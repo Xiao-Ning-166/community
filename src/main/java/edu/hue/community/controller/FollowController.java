@@ -1,6 +1,9 @@
 package edu.hue.community.controller;
 
+import edu.hue.community.entity.Event;
 import edu.hue.community.entity.User;
+import edu.hue.community.event.EventProducer;
+import edu.hue.community.service.DiscussPostService;
 import edu.hue.community.service.FollowService;
 import edu.hue.community.service.UserService;
 import edu.hue.community.util.HostHolder;
@@ -30,6 +33,9 @@ public class FollowController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private EventProducer eventProducer;
+
     /**
      * 关注
      * @param entityType
@@ -41,6 +47,16 @@ public class FollowController {
     public String follow(Integer entityType, Integer entityId) {
         User user = hostHolder.getUser();
         followService.setFollow(user.getId(),entityType,entityId);
+
+        // 触发关注事件
+        Event event = new Event();
+        event.setTopic(MessageConstant.TOPIC_FOLLOW)
+             .setUserId(user.getId())
+             .setEntityType(entityType)
+             .setEntityUserId(entityId);
+        // 发送系统通知
+        eventProducer.fireEvent(event);
+
         return JSONUtils.getJSONString(200,"已关注！！！");
     }
 

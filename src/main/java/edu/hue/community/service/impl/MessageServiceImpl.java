@@ -62,7 +62,8 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
     public Integer getLetterUnreadCount(Integer userId, String conversationId) {
         QueryWrapper<Message> query = new QueryWrapper();
         query.eq("status",0).ne("from_id",1)
-             .eq("to_id",userId).eq(conversationId!=null,"conversation_id",conversationId);
+             .eq("to_id",userId)
+             .eq(conversationId!=null,"conversation_id",conversationId);
         Integer count = messageMapper.selectCount(query);
         return count;
     }
@@ -79,5 +80,40 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
         // 过滤敏感词
         message.setContent(sensitiveFilter.filter(message.getContent()));
         return messageMapper.insert(message);
+    }
+
+    /**
+     * 通过通知类型查询主题
+     * @param page
+     * @param topic
+     * @return
+     */
+    @Override
+    public IPage<Message> listMessage(IPage<Message> page, Integer userId,  String topic) {
+        QueryWrapper<Message> query = new QueryWrapper<>();
+        query.eq("conversation_id", topic)
+                .eq("to_id",userId)
+                .ne("status",2)
+                .eq("from_id",1)
+                .orderByDesc("create_time");
+        IPage<Message> messagePage = messageMapper.selectPage(page, query);
+        return messagePage;
+    }
+
+    /**
+     * 查询未读的通知数量
+     * @param userId
+     * @param topic
+     * @return
+     */
+    @Override
+    public Integer getNoticeUnreadCount(Integer userId, String topic) {
+        QueryWrapper<Message> query = new QueryWrapper<>();
+        query.eq("status",0)
+                .eq("to_id",userId)
+                .eq("from_id",1)
+                .eq(topic != null,"conversation_id",topic);
+        Integer count = messageMapper.selectCount(query);
+        return count;
     }
 }
