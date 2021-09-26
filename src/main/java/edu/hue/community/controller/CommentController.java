@@ -75,6 +75,14 @@ public class CommentController {
         // 发送通知
         eventProducer.fireEvent(event);
 
+        // 触发发布帖子事件
+        event = new Event()
+                .setTopic(MessageConstant.TOPIC_PUBLISH)
+                .setEntityType(MessageConstant.ENTITY_TYPE_POST)
+                .setEntityUserId(hostHolder.getUser().getId())
+                .setEntityId(discussPostId);
+        eventProducer.fireEvent(event);
+
         // 重定向显示评论详情
         return "redirect:/getDiscussPost/" + discussPostId;
     }

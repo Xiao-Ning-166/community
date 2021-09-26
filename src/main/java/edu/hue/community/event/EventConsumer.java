@@ -1,8 +1,11 @@
 package edu.hue.community.event;
 
 import com.alibaba.fastjson.JSONObject;
+import edu.hue.community.entity.DiscussPost;
 import edu.hue.community.entity.Event;
 import edu.hue.community.entity.Message;
+import edu.hue.community.service.DiscussPostService;
+import edu.hue.community.service.ElasticsearchService;
 import edu.hue.community.service.MessageService;
 import edu.hue.community.util.MessageConstant;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +29,12 @@ public class EventConsumer {
 
     @Autowired
     private MessageService messageService;
+
+    @Autowired
+    private ElasticsearchService elasticsearchService;
+
+    @Autowired
+    private DiscussPostService discussPostService;
 
     @KafkaListener(topics = {MessageConstant.TOPIC_COMMENT, MessageConstant.TOPIC_LIKE, MessageConstant.TOPIC_FOLLOW})
     public void handleEvent(ConsumerRecord consumerRecord) {
@@ -55,6 +64,22 @@ public class EventConsumer {
         message.setCreateTime(new Date());
         message.setStatus(0);
         messageService.insertMessage(message);
+    }
+
+    @KafkaListener(topics = {MessageConstant.TOPIC_PUBLISH})
+    public void handlePublish(ConsumerRecord consumerRecord) {
+        if (consumerRecord == null || consumerRecord.value() == null) {
+            log.error("消息的内容为空！！！");
+            return;
+        }
+        Event event = JSONObject.parseObject(consumerRecord.value().toString(), Event.class);
+        if (event == null) {
+            log.error("消息的格式不正确！！！");
+            return;
+        }
+
+        DiscussPost post = discussPostService.getById(event.getEntityId());
+        elasticsearchService.insetPost(post);
     }
 
 }

@@ -6,7 +6,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import edu.hue.community.annotation.LoginRequired;
 import edu.hue.community.entity.Comment;
 import edu.hue.community.entity.DiscussPost;
+import edu.hue.community.entity.Event;
 import edu.hue.community.entity.User;
+import edu.hue.community.event.EventProducer;
 import edu.hue.community.service.CommentService;
 import edu.hue.community.service.DiscussPostService;
 import edu.hue.community.service.LikeService;
@@ -44,6 +46,9 @@ public class DiscussPostController {
     @Autowired
     private LikeService likeService;
 
+    @Autowired
+    private EventProducer eventProducer;
+
     /**
      * 发布一个帖子
      * @param title 帖子的标题
@@ -71,6 +76,15 @@ public class DiscussPostController {
         discussPost.setCreateTime(new Date());
         // 保存帖子
         discussPostService.insertDiscussPost(discussPost);
+
+        // 触发发布帖子事件
+        Event event = new Event()
+                .setTopic(MessageConstant.TOPIC_PUBLISH)
+                .setEntityType(MessageConstant.ENTITY_TYPE_POST)
+                .setEntityUserId(user.getId())
+                .setEntityId(discussPost.getId());
+        eventProducer.fireEvent(event);
+
         // 如果保存成功
         return JSONUtils.getJSONString(200,"帖子发布成功！！！");
     }

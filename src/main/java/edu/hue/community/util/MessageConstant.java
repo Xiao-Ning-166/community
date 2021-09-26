@@ -59,6 +59,9 @@ public class MessageConstant {
      * 点赞
      */
     public static final String TOPIC_FOLLOW = "follow";
+
+    public static final String TOPIC_PUBLISH = "publish";
+
     /**
      * 系统用户的id
      */
