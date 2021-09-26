@@ -1,0 +1,33 @@
+{
+  "properties": {
+    "userId": {
+      "type": "integer"
+    },
+    "title": {
+      "type": "text",
+      "analyzer": "ik_max_word",
+      "search_analyzer": "ik_smart"
+    },
+    "content": {
+      "type": "text",
+      "analyzer": "ik_max_word",
+      "search_analyzer": "ik_smart"
+    },
+    "type": {
+      "type": "integer"
+    },
+    "status": {
+      "type": "integer"
+    },
+    "createTime": {
+      "type": "date",
+      "format": "yyyy-MM-dd HH:mm:ss",
+    },
+    "commentCount": {
+      "type": "integer"
+    },
+    "score": {
+      "type": "double"
+    }
+  }
+}
