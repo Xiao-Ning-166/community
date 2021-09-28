@@ -60,6 +60,12 @@ public class FollowController {
         return JSONUtils.getJSONString(200,"已关注！！！");
     }
 
+    /**
+     * 取关
+     * @param entityType
+     * @param entityId
+     * @return
+     */
     @PostMapping("/unFollow")
     @ResponseBody
     public String unFollow(Integer entityType, Integer entityId) {
@@ -68,6 +74,13 @@ public class FollowController {
         return JSONUtils.getJSONString(200,"已取消关注！！！");
     }
 
+    /**
+     * 查看关注列表
+     * @param userId
+     * @param model
+     * @param offset
+     * @return
+     */
     @GetMapping("/listFollowee/{userId}")
     public String listFollowee(@PathVariable("userId") Integer userId, Model model,
                                @RequestParam(value = "offset", required = false, defaultValue = "0") Integer offset) {
@@ -89,6 +102,13 @@ public class FollowController {
         return "/site/followee";
     }
 
+    /**
+     * 产看粉丝列表
+     * @param userId
+     * @param model
+     * @param offset
+     * @return
+     */
     @GetMapping("/listFollower/{userId}")
     public String listFollower(@PathVariable("userId") Integer userId, Model model,
                                @RequestParam(value = "offset", required = false, defaultValue = "0") Integer offset) {

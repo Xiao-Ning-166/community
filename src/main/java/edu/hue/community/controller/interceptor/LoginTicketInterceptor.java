@@ -1,6 +1,5 @@
 package edu.hue.community.controller.interceptor;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import edu.hue.community.entity.LoginTicket;
 import edu.hue.community.entity.User;
 import edu.hue.community.service.LoginTicketService;
@@ -10,6 +9,10 @@ import edu.hue.community.util.HostHolder;
 import edu.hue.community.util.RedisUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.AsyncHandlerInterceptor;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -59,6 +62,12 @@ public class LoginTicketInterceptor implements HandlerInterceptor {
                 User user = userService.getUserById(loginTicket.getUserId());
                 //
                 hostHolder.setUser(user);
+
+                // 获取用户的授权
+                Authentication authentication = new UsernamePasswordAuthenticationToken(
+                        user, user.getPassword(), userService.listAuthority(user.getId())
+                );
+                SecurityContextHolder.setContext(new SecurityContextImpl(authentication));
             }
         }
         return true;
@@ -81,5 +90,8 @@ public class LoginTicketInterceptor implements HandlerInterceptor {
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
         hostHolder.clear();
+
+        // 清除权限
+        SecurityContextHolder.clearContext();
     }
 }

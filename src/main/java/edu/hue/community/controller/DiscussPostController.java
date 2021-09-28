@@ -89,6 +89,13 @@ public class DiscussPostController {
         return JSONUtils.getJSONString(200,"帖子发布成功！！！");
     }
 
+    /**
+     * 查看帖子详情
+     * @param model
+     * @param discussPostId
+     * @param current
+     * @return
+     */
     @GetMapping("/getDiscussPost/{discussPostId}")
     public String getDiscussPost(Model model,
                                  @PathVariable("discussPostId") Integer discussPostId,

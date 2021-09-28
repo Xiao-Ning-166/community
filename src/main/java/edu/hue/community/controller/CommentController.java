@@ -87,6 +87,13 @@ public class CommentController {
         return "redirect:/getDiscussPost/" + discussPostId;
     }
 
+    /**
+     * 查看我的回复
+     * @param model
+     * @param userId
+     * @param current
+     * @return
+     */
     @GetMapping("/myReply/{userId}")
     public String listReply(Model model,
                             @PathVariable("userId") Integer userId,

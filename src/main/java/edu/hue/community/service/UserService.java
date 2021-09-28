@@ -2,7 +2,9 @@ package edu.hue.community.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import edu.hue.community.entity.User;
+import org.springframework.security.core.GrantedAuthority;
 
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -68,5 +70,12 @@ public interface UserService extends IService<User> {
      * @return
      */
     Map<String, Object> resetPassword(String email, String password);
+
+    /**
+     * 获得用户权限集合
+     * @param userId
+     * @return
+     */
+    Collection<? extends GrantedAuthority> listAuthority(Integer userId);
 
 }

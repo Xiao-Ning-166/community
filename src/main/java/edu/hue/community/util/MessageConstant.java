@@ -66,4 +66,21 @@ public class MessageConstant {
      * 系统用户的id
      */
     public static final Integer SYSTEM_USER_ID = 1;
+
+    /**
+     * 授权：普通用户
+     */
+    public static final String AUTHORITY_USER = "user";
+    public static final String ROLE_USER = "user";
+
+    /**
+     * 授权：管理员
+     */
+    public static final String AUTHORITY_ADMIN = "admin";
+    public static final String ROLE_ADMIN = "admin";
+    /**
+     * 授权：版主
+     */
+    public static final String AUTHORITY_MODERATOR = "moderator";
+    public static final String ROLE_MODERATOR = "moderator";
 }

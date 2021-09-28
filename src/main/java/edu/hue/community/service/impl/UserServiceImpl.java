@@ -15,14 +15,13 @@ import edu.hue.community.util.MessageConstant;
 import edu.hue.community.util.RedisUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -321,5 +320,29 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return map;
     }
 
+    /**
+     * 获得用户权限集合
+     * @param userId
+     * @return
+     */
+    @Override
+    public Collection<? extends GrantedAuthority> listAuthority(Integer userId) {
+        User user = this.getUserById(userId);
 
+        List<GrantedAuthority> list = new ArrayList<>();
+        list.add(new GrantedAuthority() {
+            @Override
+            public String getAuthority() {
+                if (user.getType().equals(1)) {
+                    return MessageConstant.AUTHORITY_ADMIN;
+                } else if (user.getType().equals(2)) {
+                    return MessageConstant.AUTHORITY_MODERATOR;
+                } else {
+                    return MessageConstant.AUTHORITY_USER;
+                }
+            }
+        });
+
+        return list;
+    }
 }

@@ -233,6 +233,7 @@ public class MessageController {
             messageMap.put("count",messagePage.getTotal());
             // 未读的通知总数
             messageMap.put("unreadCount",messageService.getNoticeUnreadCount(userId,topic));
+
         }
         return messageMap;
     }
@@ -252,8 +253,8 @@ public class MessageController {
         IPage<Message> page = new Page<>(current,5);
         IPage<Message> messagePage = messageService.listMessage(page, user.getId(), topic);
         List<Message> messageList = messagePage.getRecords();
-        List<Map<String, Object>> noticeList = new ArrayList<>();
         if (messageList != null) {
+            List<Map<String, Object>> noticeList = new ArrayList<>();
             for (Message message : messageList) {
                 Map<String, Object> notice = new HashMap<>();
                 // 通知信息
@@ -270,8 +271,8 @@ public class MessageController {
 
                 noticeList.add(notice);
             }
+            model.addAttribute("noticeList",noticeList);
         }
-         model.addAttribute("noticeList",noticeList);
         model.addAttribute("page",messagePage);
         // 设置已读
         // 更新未读数据为已读

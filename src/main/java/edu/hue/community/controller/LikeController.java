@@ -35,6 +35,14 @@ public class LikeController {
     @Autowired
     private EventProducer eventProducer;
 
+    /**
+     * 点赞
+     * @param entityType
+     * @param entityId
+     * @param entityUserId
+     * @param postId
+     * @return
+     */
     @PostMapping("/like")
     @ResponseBody
     public String like(Integer entityType, Integer entityId, Integer entityUserId, Integer postId) {
