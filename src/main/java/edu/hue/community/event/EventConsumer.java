@@ -82,4 +82,19 @@ public class EventConsumer {
         elasticsearchService.insetPost(post);
     }
 
+    @KafkaListener(topics = {MessageConstant.TOPIC_DELETE})
+    public void handleDelete(ConsumerRecord consumerRecord) {
+        if (consumerRecord == null || consumerRecord.value() == null) {
+            log.error("消息的内容为空！！！");
+            return;
+        }
+        Event event = JSONObject.parseObject(consumerRecord.value().toString(), Event.class);
+        if (event == null) {
+            log.error("消息的格式不正确！！！");
+            return;
+        }
+        Integer discussPostId = event.getEntityId();
+        elasticsearchService.deletePostById(discussPostId);
+    }
+
 }

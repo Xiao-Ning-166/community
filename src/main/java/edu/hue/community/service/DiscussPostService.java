@@ -34,4 +34,20 @@ public interface DiscussPostService extends IService<DiscussPost> {
      * @return
      */
     IPage<DiscussPost> listPost(IPage<DiscussPost> page, Integer userId);
+
+    /**
+     * 根据帖子id修改帖子的状态
+     * 0-正常; 1-精华; 2-拉黑;
+     * @param id
+     * @param status
+     */
+    void updatePostStatusById(Integer id, Integer status);
+
+    /**
+     * 根据id修改帖子的类型
+     * 0：普通 1：置顶
+     * @param id
+     * @param type
+     */
+    void updatePostTypeById(Integer id, Integer type);
 }

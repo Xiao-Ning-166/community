@@ -60,7 +60,15 @@ public class MessageConstant {
      */
     public static final String TOPIC_FOLLOW = "follow";
 
+    /**
+     * 发帖事件
+     */
     public static final String TOPIC_PUBLISH = "publish";
+
+    /**
+     * 主题：删除帖子
+     */
+    public static final String TOPIC_DELETE = "delete";
 
     /**
      * 系统用户的id
@@ -71,16 +79,30 @@ public class MessageConstant {
      * 授权：普通用户
      */
     public static final String AUTHORITY_USER = "user";
-    public static final String ROLE_USER = "user";
 
     /**
      * 授权：管理员
      */
     public static final String AUTHORITY_ADMIN = "admin";
-    public static final String ROLE_ADMIN = "admin";
     /**
      * 授权：版主
      */
     public static final String AUTHORITY_MODERATOR = "moderator";
     public static final String ROLE_MODERATOR = "moderator";
+
+    /**
+     * 类型：置顶
+     */
+    public static final Integer TYPE_TOP = 1;
+
+
+    /**
+     * 状态：精华
+     */
+    public static final Integer STATUS_WONDERFUL = 1;
+
+    /**
+     * 状态：删除
+     */
+    public static final Integer STATUS_DELETE = 2;
 }

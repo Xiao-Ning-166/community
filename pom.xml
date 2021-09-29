@@ -28,6 +28,13 @@
     </properties>
 
     <dependencies>
+        <!-- thymeleaf springsecurity -->
+        <dependency>
+            <groupId>org.thymeleaf.extras</groupId>
+            <artifactId>thymeleaf-extras-springsecurity5</artifactId>
+        </dependency>
+
+
         <!-- spring security -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

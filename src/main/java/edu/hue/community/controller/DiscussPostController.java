@@ -206,4 +206,55 @@ public class DiscussPostController {
         return "/site/my-post";
     }
 
+    /**
+     * 设置置顶
+     * @param discussPostId
+     * @return
+     */
+    @GetMapping("/top/{discussPostId}")
+    @ResponseBody
+    public String setTop(@PathVariable("discussPostId") Integer discussPostId) {
+        discussPostService.updatePostTypeById(discussPostId,MessageConstant.TYPE_TOP);
+
+        // 触发发布帖子事件，修改es中数据属性
+        Event event = new Event()
+                .setTopic(MessageConstant.TOPIC_PUBLISH)
+                .setEntityType(MessageConstant.ENTITY_TYPE_POST)
+                .setEntityUserId(hostHolder.getUser().getId())
+                .setEntityId(discussPostId);
+        eventProducer.fireEvent(event);
+
+        return JSONUtils.getJSONString(200,"帖子置顶成功！！！");
+    }
+
+    @GetMapping("/wonderful/{discussPostId}")
+    @ResponseBody
+    public String addWonderful(@PathVariable("discussPostId") Integer discussPostId) {
+        discussPostService.updatePostStatusById(discussPostId, MessageConstant.STATUS_WONDERFUL);
+        // 触发帖子发布事件
+        Event event = new Event()
+                .setTopic(MessageConstant.TOPIC_PUBLISH)
+                .setEntityType(MessageConstant.ENTITY_TYPE_POST)
+                .setEntityUserId(hostHolder.getUser().getId())
+                .setEntityId(discussPostId);
+        eventProducer.fireEvent(event);
+        return JSONUtils.getJSONString(200, "帖子加精成功！！！");
+    }
+
+    @GetMapping("/deletePost/{discussPostId}")
+    @ResponseBody
+    public String deletePostById(@PathVariable("discussPostId") Integer discussPostId) {
+        discussPostService.updatePostStatusById(discussPostId, MessageConstant.STATUS_DELETE);
+
+        // 触发删帖事件
+        Event event = new Event()
+                .setTopic(MessageConstant.TOPIC_DELETE)
+                .setEntityType(MessageConstant.ENTITY_TYPE_POST)
+                .setEntityUserId(hostHolder.getUser().getId())
+                .setEntityId(discussPostId);
+        eventProducer.fireEvent(event);
+
+        return JSONUtils.getJSONString(200,"删帖成功！！！");
+    }
+
 }

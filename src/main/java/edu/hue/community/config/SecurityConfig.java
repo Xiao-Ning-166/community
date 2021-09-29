@@ -38,13 +38,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     "/setting", "/updateHeader", "/updatePassword", "/profile/**"
             )
             .hasAnyAuthority(
-                    MessageConstant.ROLE_ADMIN,
-                    MessageConstant.ROLE_ADMIN,
-                    MessageConstant.ROLE_MODERATOR,
                     MessageConstant.AUTHORITY_ADMIN,
                     MessageConstant.AUTHORITY_USER,
                     MessageConstant.AUTHORITY_MODERATOR
             )
+            .antMatchers("/top/**", "wonderful/**", "/deletePost/**")
+            .hasAnyAuthority(MessageConstant.AUTHORITY_ADMIN)
+            .antMatchers("/deletePost/**")
+            .hasAnyAuthority(MessageConstant.AUTHORITY_MODERATOR)
             .anyRequest().permitAll();
 
         http.csrf().disable();
