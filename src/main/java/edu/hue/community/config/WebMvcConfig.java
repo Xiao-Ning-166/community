@@ -1,5 +1,6 @@
 package edu.hue.community.config;
 
+import edu.hue.community.controller.interceptor.DataInterceptor;
 import edu.hue.community.controller.interceptor.LoginRequiredInterceptor;
 import edu.hue.community.controller.interceptor.LoginTicketInterceptor;
 import edu.hue.community.controller.interceptor.MessageInterceptor;
@@ -24,6 +25,9 @@ public class WebMvcConfig  implements WebMvcConfigurer {
     @Autowired
     private MessageInterceptor messageInterceptor;
 
+    @Autowired
+    private DataInterceptor dataInterceptor;
+
     /**
      * @param registry
      */
@@ -38,6 +42,10 @@ public class WebMvcConfig  implements WebMvcConfigurer {
 
         // 添加显示未读消息数量的拦截器
         registry.addInterceptor(messageInterceptor)
+                .excludePathPatterns("/css/**", "/img/**", "/js/**");
+
+        // 添加统计数据的拦截器
+        registry.addInterceptor(dataInterceptor)
                 .excludePathPatterns("/css/**", "/img/**", "/js/**");
     }
 }

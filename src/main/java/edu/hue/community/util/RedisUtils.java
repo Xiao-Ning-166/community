@@ -39,6 +39,14 @@ public class RedisUtils {
      * 缓存用户数据的前缀
      */
     private static final String PREFIX_CACHE_USER = "cache:user";
+    /**
+     * 独立用户的前缀
+     */
+    private static final String PREFIX_UV = "uv";
+    /**
+     * 日活跃用户的前缀
+     */
+    private static final String PREFIX_DAU = "dau";
 
     /**
      * 生成一个存放点赞次数的键
@@ -104,5 +112,43 @@ public class RedisUtils {
      */
     public static String getCacheUserKey(Integer userId) {
         return PREFIX_CACHE_USER + SPLIT + userId;
+    }
+
+    /**
+     * 得到存放单日独立用户数量的key
+     * @param date
+     * @return
+     */
+    public static String getUVKey(String date) {
+        return PREFIX_UV + SPLIT + date;
+    }
+
+    /**
+     * 得到存放一段时间内的独立用户数量的key
+     * @param startDate
+     * @param endDate
+     * @return
+     */
+    public static String getUVKey(String startDate, String endDate) {
+        return PREFIX_UV + SPLIT + startDate + SPLIT + endDate;
+    }
+
+    /**
+     * 得到存放单日活跃用户的key
+     * @param date
+     * @return
+     */
+    public static String getDAUKey(String date) {
+        return PREFIX_DAU + SPLIT + date;
+    }
+
+    /**
+     * 得到存放一段时间内活跃用户的key
+     * @param startDate
+     * @param endDate
+     * @return
+     */
+    public static String getDAUKey(String startDate, String endDate) {
+        return PREFIX_DAU + SPLIT + startDate + SPLIT + endDate;
     }
 }
