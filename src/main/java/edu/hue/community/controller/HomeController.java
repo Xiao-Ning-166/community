@@ -41,9 +41,10 @@ public class HomeController {
      */
     @GetMapping("/index")
     public String pageQuery(Model model,
-                            @RequestParam(value = "current", required = false, defaultValue = "0") Integer current) {
+                            @RequestParam(value = "current", required = false, defaultValue = "0") Integer current,
+                            @RequestParam(value = "queryMode", required = false, defaultValue = "0") Integer queryMode) {
         Page pageQuery = new Page(current,10);
-        Page page = discussPostService.pageQuery(pageQuery,null);
+        Page page = discussPostService.pageQuery(pageQuery,null, queryMode);
         List<Map<String, Object>> list = new ArrayList<>();
         List<DiscussPost> records = pageQuery.getRecords();
         if (records != null) {
@@ -60,6 +61,7 @@ public class HomeController {
         }
         model.addAttribute("discussPosts",list);
         model.addAttribute("page",page);
+        model.addAttribute("queryMode",queryMode);
         return "/index";
     }
 

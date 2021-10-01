@@ -8,8 +8,10 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import edu.hue.community.dao.DiscussPostMapper;
 import edu.hue.community.entity.DiscussPost;
 import edu.hue.community.service.DiscussPostService;
+import edu.hue.community.util.RedisUtils;
 import edu.hue.community.util.SensitiveFilter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.HtmlUtils;
 
@@ -25,6 +27,7 @@ public class DiscussPostServiceImpl
     @Autowired
     private SensitiveFilter sensitiveFilter;
 
+
     /**
      * 分页查询
      * @param page
@@ -32,14 +35,25 @@ public class DiscussPostServiceImpl
      * @return
      */
     @Override
-    public Page pageQuery(Page page, Integer userId) {
+    public Page pageQuery(Page page, Integer userId, Integer queryMode) {
+        Page discussPostPage = null;
         // 封装查询条件
-        QueryWrapper<DiscussPost> query = new QueryWrapper();
-        query.ne("status",2)
-                .eq(userId != null,"user_id",userId)
-                .orderByDesc("type", "create_time");
-        // 分页查询
-        Page discussPostPage = this.page(page, query);
+        if (queryMode.equals(0)) {
+            // 按照时间查询
+            QueryWrapper<DiscussPost> queryByTime = new QueryWrapper();
+            queryByTime.ne("status", 2)
+                       .eq(userId != null, "user_id", userId)
+                       .orderByDesc("type", "create_time");
+            // 分页查询
+            discussPostPage  = this.page(page, queryByTime);
+        } else {
+            // 按照热度查询
+            QueryWrapper<DiscussPost> queryByScore = new QueryWrapper<>();
+            queryByScore.ne("status",2)
+                        .eq(userId != null, "user_id", userId)
+                        .orderByDesc("type", "score", "create_time");
+            discussPostPage = this.page(page,queryByScore);
+        }
         return discussPostPage;
     }
 

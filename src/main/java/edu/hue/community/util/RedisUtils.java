@@ -47,6 +47,10 @@ public class RedisUtils {
      * 日活跃用户的前缀
      */
     private static final String PREFIX_DAU = "dau";
+    /**
+     * 存放要更新分数的帖子的id的前缀
+     */
+    private static final String PREFIX_SCORE = "post";
 
     /**
      * 生成一个存放点赞次数的键
@@ -150,5 +154,13 @@ public class RedisUtils {
      */
     public static String getDAUKey(String startDate, String endDate) {
         return PREFIX_DAU + SPLIT + startDate + SPLIT + endDate;
+    }
+
+    /**
+     * 得到存放要更新帖子的id的key
+     * @return
+     */
+    public static String getScoreKey() {
+        return PREFIX_SCORE + SPLIT + "score";
     }
 }

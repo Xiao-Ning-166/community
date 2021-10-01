@@ -12,7 +12,9 @@ import edu.hue.community.service.LikeService;
 import edu.hue.community.service.UserService;
 import edu.hue.community.util.HostHolder;
 import edu.hue.community.util.MessageConstant;
+import edu.hue.community.util.RedisUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,6 +46,9 @@ public class CommentController {
     @Autowired
     private EventProducer eventProducer;
 
+    @Autowired
+    private RedisTemplate redisTemplate;
+
 
     /**
      * 添加评论
@@ -66,9 +71,15 @@ public class CommentController {
              .setEntityId(comment.getEntityId())
              .setData("postId", discussPostId);
         if (comment.getEntityType().equals(MessageConstant.ENTITY_TYPE_POST)) {
+            // 给帖子评论
             DiscussPost target = discussPostService.getById(comment.getEntityId());
             event.setEntityUserId(target.getUserId());
+
+            // 更新帖子分数
+            String key = RedisUtils.getScoreKey();
+            redisTemplate.opsForSet().add(key, discussPostId);
         } else if (comment.getEntityType().equals(MessageConstant.ENTITY_TYPE_COMMENT)) {
+            // 给评论评论
             Comment target = commentService.getById(comment.getEntityId());
             event.setEntityUserId(target.getUserId());
         }

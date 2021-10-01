@@ -8,7 +8,9 @@ import edu.hue.community.service.LikeService;
 import edu.hue.community.util.HostHolder;
 import edu.hue.community.util.JSONUtils;
 import edu.hue.community.util.MessageConstant;
+import edu.hue.community.util.RedisUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -34,6 +36,9 @@ public class LikeController {
 
     @Autowired
     private EventProducer eventProducer;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     /**
      * 点赞
@@ -68,6 +73,13 @@ public class LikeController {
                     .setData("postId",postId);
             eventProducer.fireEvent(event);
         }
+        // 判断是否给帖子点赞
+        if (entityType.equals(MessageConstant.ENTITY_TYPE_POST)) {
+            // 更新帖子分数
+            String key = RedisUtils.getScoreKey();
+            redisTemplate.opsForSet().add(key, postId);
+        }
+
         return JSONUtils.getJSONString(200,null,map);
     }
 

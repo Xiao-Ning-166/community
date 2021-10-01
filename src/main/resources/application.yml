@@ -62,6 +62,24 @@ spring:
   elasticsearch:
     rest:
       uris: 127.0.0.1:9200
+  # Quartz相关配置
+  quartz:
+    # 将任务保存到数据库中
+    job-store-type: jdbc
+    scheduler-name: communityScheduler
+    properties:
+      org:
+        quartz:
+          scheduler:
+            instanceId: auto
+          jobStore:
+            class: org.quartz.impl.jdbcjobstore.JobStoreTX
+            driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
+            isClustered: true
+          threadPool:
+            class: org.quartz.simpl.SimpleThreadPool
+            threadCount: 5
+
 # elasticsearch 的地址
 elasticsearch.host: 127.0.0.1
 # elasticsearch 的端口号

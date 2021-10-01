@@ -16,7 +16,9 @@ import edu.hue.community.service.UserService;
 import edu.hue.community.util.HostHolder;
 import edu.hue.community.util.JSONUtils;
 import edu.hue.community.util.MessageConstant;
+import edu.hue.community.util.RedisUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -48,6 +50,9 @@ public class DiscussPostController {
 
     @Autowired
     private EventProducer eventProducer;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     /**
      * 发布一个帖子
@@ -84,6 +89,10 @@ public class DiscussPostController {
                 .setEntityUserId(user.getId())
                 .setEntityId(discussPost.getId());
         eventProducer.fireEvent(event);
+
+        // 更新帖子分数
+        String key = RedisUtils.getScoreKey();
+        redisTemplate.opsForSet().add(key,discussPost.getId());
 
         // 如果保存成功
         return JSONUtils.getJSONString(200,"帖子发布成功！！！");
@@ -227,6 +236,11 @@ public class DiscussPostController {
         return JSONUtils.getJSONString(200,"帖子置顶成功！！！");
     }
 
+    /**
+     * 加精
+     * @param discussPostId
+     * @return
+     */
     @GetMapping("/wonderful/{discussPostId}")
     @ResponseBody
     public String addWonderful(@PathVariable("discussPostId") Integer discussPostId) {
@@ -238,6 +252,11 @@ public class DiscussPostController {
                 .setEntityUserId(hostHolder.getUser().getId())
                 .setEntityId(discussPostId);
         eventProducer.fireEvent(event);
+
+        // 更新帖子分数
+        String key = RedisUtils.getScoreKey();
+        redisTemplate.opsForSet().add(key,discussPostId);
+
         return JSONUtils.getJSONString(200, "帖子加精成功！！！");
     }
 

@@ -18,7 +18,7 @@ public interface DiscussPostService extends IService<DiscussPost> {
      * @param userId
      * @return
      */
-    Page pageQuery(Page page, Integer userId);
+    Page pageQuery(Page page, Integer userId, Integer queryMode);
 
     /**
      * 保存帖子
@@ -50,4 +50,5 @@ public interface DiscussPostService extends IService<DiscussPost> {
      * @param type
      */
     void updatePostTypeById(Integer id, Integer type);
+
 }
