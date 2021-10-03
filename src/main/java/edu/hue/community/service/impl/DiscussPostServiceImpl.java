@@ -1,19 +1,32 @@
 package edu.hue.community.service.impl;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.github.benmanes.caffeine.cache.CacheLoader;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import edu.hue.community.dao.DiscussPostMapper;
 import edu.hue.community.entity.DiscussPost;
 import edu.hue.community.service.DiscussPostService;
 import edu.hue.community.util.RedisUtils;
 import edu.hue.community.util.SensitiveFilter;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.HtmlUtils;
+
+import javax.annotation.PostConstruct;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author 47552
@@ -27,6 +40,50 @@ public class DiscussPostServiceImpl
     @Autowired
     private SensitiveFilter sensitiveFilter;
 
+    @Autowired
+    private DiscussPostMapper discussPostMapper;
+
+    private static final Logger logger = LoggerFactory.getLogger(DiscussPostServiceImpl.class);
+
+    @Value("${caffeine.post.max-size}")
+    private int maxSize;
+
+    @Value("${caffeine.post.expire-seconds}")
+    private long expireSeconds;
+
+    // 分页信息缓存
+    private LoadingCache<String, Page<DiscussPost>> postPageCache;
+
+
+    @PostConstruct
+    public void initCache() {
+        // 初始化帖子缓存
+        postPageCache = Caffeine.newBuilder()
+                .maximumSize(maxSize)
+                .expireAfterWrite(expireSeconds, TimeUnit.SECONDS)
+                .build(new CacheLoader<String, Page<DiscussPost>>() {
+                    @Override
+                    public @Nullable Page<DiscussPost> load(@NonNull String s) throws Exception {
+                        if (StrUtil.isBlankIfStr(s)) {
+                            throw new IllegalArgumentException("参数不正确！！！");
+                        }
+                        String[] params = s.split(":");
+                        if (params == null || params.length != 2) {
+                            throw new IllegalArgumentException("参数不正确！！！");
+                        }
+                        logger.debug("正在查询数据库");
+                        int start = Integer.valueOf(params[0]);
+                        int size = Integer.valueOf(params[1]);
+                        Page<DiscussPost> page = new Page<>(start, size);
+                        QueryWrapper<DiscussPost> query = new QueryWrapper<>();
+                        query.ne("status",2)
+                                .orderByDesc("type", "score", "create_time");
+                        Page<DiscussPost> discussPostPage = discussPostMapper.selectPage(page, query);
+                        return discussPostPage;
+                    }
+                });
+
+    }
 
     /**
      * 分页查询
@@ -36,24 +93,22 @@ public class DiscussPostServiceImpl
      */
     @Override
     public Page pageQuery(Page page, Integer userId, Integer queryMode) {
-        Page discussPostPage = null;
-        // 封装查询条件
-        if (queryMode.equals(0)) {
-            // 按照时间查询
-            QueryWrapper<DiscussPost> queryByTime = new QueryWrapper();
-            queryByTime.ne("status", 2)
-                       .eq(userId != null, "user_id", userId)
-                       .orderByDesc("type", "create_time");
-            // 分页查询
-            discussPostPage  = this.page(page, queryByTime);
-        } else {
-            // 按照热度查询
-            QueryWrapper<DiscussPost> queryByScore = new QueryWrapper<>();
-            queryByScore.ne("status",2)
-                        .eq(userId != null, "user_id", userId)
-                        .orderByDesc("type", "score", "create_time");
-            discussPostPage = this.page(page,queryByScore);
+        if (queryMode.equals(1)) {
+            String key = page.getCurrent() + ":" + page.getSize();
+            return postPageCache.get(key);
         }
+
+        logger.debug("正在查询数据库");
+        // 封装查询条件
+        QueryWrapper<DiscussPost> queryByTime = new QueryWrapper();
+        queryByTime.ne("status", 2)
+                   .eq(userId != null, "user_id", userId)
+                   .orderByDesc("type")
+                   .orderByDesc(queryMode.equals(1), "score")
+                   .orderByDesc("create_time");
+        // 分页查询
+        Page discussPostPage  = this.page(page, queryByTime);
+
         return discussPostPage;
     }
 

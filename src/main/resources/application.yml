@@ -95,3 +95,18 @@ community:
     upload: F:/项目/牛客社区/data/upload
     # 域名
     domain: http://localhost:8080
+
+# 七牛云的自定义配置
+qiniu:
+  key:
+    access: _uOkUWPrFE3ckZkBIaNZHjjjmeF74hfbZ93ya0nC
+    secret: jeVZQY6mf9XbeGW-rATIBV1oyC8H6r5dAThQPIa8
+  space:
+    name: community-picture
+    url: http://r0brnu4cx.hn-bkt.clouddn.com
+
+# 与本地缓存 caffeine 有关的自定义配置
+caffeine:
+  post:
+    max-size: 15
+    expire-seconds: 300

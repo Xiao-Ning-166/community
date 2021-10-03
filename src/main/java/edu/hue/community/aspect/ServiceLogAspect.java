@@ -19,8 +19,8 @@ import java.util.Date;
  * @date 2021/09/19
  * 统一记录 Service 层的日志
  */
-@Component
-@Aspect
+//@Component
+//@Aspect
 @Slf4j
 public class ServiceLogAspect {
 

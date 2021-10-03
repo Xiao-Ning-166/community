@@ -25,9 +25,24 @@
         <kaptcha.version>2.3.2</kaptcha.version>
         <fastjson.version>1.2.75</fastjson.version>
         <elasticsearch.version>7.6.2</elasticsearch.version>
+        <qiniu.version>7.2.28</qiniu.version>
+        <caffeine.version>2.8.8</caffeine.version>
     </properties>
 
     <dependencies>
+        <!-- 本地缓存相关 -->
+        <dependency>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
+            <version>${caffeine.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.qiniu</groupId>
+            <artifactId>qiniu-java-sdk</artifactId>
+            <version>${qiniu.version}</version>
+        </dependency>
+
 
         <dependency>
             <groupId>org.springframework.boot</groupId>

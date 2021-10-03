@@ -1,12 +1,15 @@
 package edu.hue.community.controller;
 
 import cn.hutool.core.util.StrUtil;
+import com.qiniu.util.Auth;
+import com.qiniu.util.StringMap;
 import edu.hue.community.annotation.LoginRequired;
 import edu.hue.community.entity.User;
 import edu.hue.community.service.FollowService;
 import edu.hue.community.service.LikeService;
 import edu.hue.community.service.UserService;
 import edu.hue.community.util.HostHolder;
+import edu.hue.community.util.JSONUtils;
 import edu.hue.community.util.MessageConstant;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,14 +50,55 @@ public class UserController {
     @Autowired
     private FollowService followService;
 
+    @Value("${qiniu.key.access}")
+    private String accessKey;
+
+    @Value("${qiniu.key.secret}")
+    private String secretKey;
+
+    @Value("${qiniu.space.name}")
+    private String spaceName;
+
+    @Value("${qiniu.space.url}")
+    private String url;
+
     /**
      * 去往账号设置页面
      * @return
      */
     @LoginRequired
     @GetMapping("/setting")
-    public String goToSetting() {
+    public String goToSetting(Model model) {
+
+        String fileName = StrUtil.uuid();
+        // 生成凭证
+        StringMap policy = new StringMap();
+        policy.put("returnBody", JSONUtils.getJSONString(200));
+        Auth auth = Auth.create(accessKey, secretKey);
+        String uploadToken = auth.uploadToken(spaceName, fileName, 5 * 60, policy);
+
+        model.addAttribute("uploadToken", uploadToken);
+        model.addAttribute("fileName", fileName);
+
         return "/site/setting";
+    }
+
+    @PostMapping("/header/url")
+    @ResponseBody
+    public String updateHeader(String fileName) {
+        if (StrUtil.isBlankIfStr(fileName)) {
+            return JSONUtils.getJSONString(500, "文件名不能为空！！！");
+        }
+        String headerUrl = url + "/" + fileName;
+        User user = hostHolder.getUser();
+        user.setHeaderUrl(headerUrl);
+        boolean flag = userService.updateById(user);
+
+        if (flag) {
+            // 清理缓存中的用户数据
+            userService.clearCache(user.getId());
+        }
+        return JSONUtils.getJSONString(200,"头像更新成功！！！");
     }
 
     /**
