@@ -33,6 +33,11 @@ public class HomeController {
     @Autowired
     private LikeService likeService;
 
+    @GetMapping("/")
+    public String root() {
+        return "forward:/index";
+    }
+
     /**
      * 分页查询
      * @param model

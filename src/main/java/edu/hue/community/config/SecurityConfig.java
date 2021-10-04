@@ -42,7 +42,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     MessageConstant.AUTHORITY_USER,
                     MessageConstant.AUTHORITY_MODERATOR
             )
-            .antMatchers("/top/**", "wonderful/**", "/deletePost/**", "/data/**")
+            .antMatchers("/top/**",
+                    "wonderful/**",
+                    "/deletePost/**",
+                    "/data/**",
+                    "/actuator/**")
             .hasAnyAuthority(MessageConstant.AUTHORITY_ADMIN)
             .antMatchers("/deletePost/**")
             .hasAnyAuthority(MessageConstant.AUTHORITY_MODERATOR)
